@@ -316,6 +316,10 @@
   function setHP(initial) {
     state.initialHP = initial;
     state.currentHP = initial;
+    if (state.abilityOverrideText) {
+      state.abilityOverrideText = "";
+      renderAbilityFromState();
+    }
     hpNowEl.textContent = initial > 0 ? String(initial) : "—";
     updateHpBar();
     updateButtonState();
