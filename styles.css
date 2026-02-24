@@ -29,6 +29,7 @@ body{
     radial-gradient(1200px 700px at 20% 20%, rgba(45,190,108,.16), transparent 55%),
     radial-gradient(1000px 600px at 95% 5%, rgba(227,93,91,.14), transparent 55%),
     var(--bg);
+  min-height: 100dvh;
   overflow: hidden; /* 1画面完結 */
   user-select: none;
   -webkit-user-select: none;
@@ -36,7 +37,8 @@ body{
 }
 
 .app{
-  height: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
   padding: var(--padT) var(--padR) var(--padB) var(--padL);
   display: flex;
   flex-direction: column;
@@ -44,7 +46,7 @@ body{
 }
 
 .header{
-  height: clamp(72px, 10vh, 92px);
+  height: clamp(76px, 10vh, 98px);
   background: var(--panel);
   border: 1px solid rgba(148,163,184,.18);
   border-radius: var(--radius);
@@ -58,7 +60,7 @@ body{
 
 
 .select{
-  height: 44px;
+  height: 48px;
   border-radius: 14px;
   border: 1px solid rgba(148,163,184,.18);
   background: rgba(255,255,255,.06);
@@ -100,8 +102,8 @@ body{
 }
 
 .typeIcons img{
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   border-radius: 999px;
   background: rgba(255,255,255,.06);
@@ -225,14 +227,14 @@ body{
 
 /* HP bar */
 .hpBarWrap{
-  height: 24px;
+  height: 28px;
   display: flex;
   align-items: center;
 }
 
 .hpBar{
   width: calc(100% - 0px);
-  height: 16px;
+  height: 18px;
   border-radius: 999px;
   background: rgba(31,41,55,.9);
   border: 1px solid rgba(148,163,184,.18);
@@ -249,7 +251,7 @@ body{
 
 /* Bottom */
 .bottom{
-  height: clamp(190px, 26vh, 250px);
+  height: clamp(200px, 27vh, 260px);
   background: var(--panel);
   border: 1px solid rgba(148,163,184,.18);
   border-radius: var(--radius);
@@ -377,7 +379,7 @@ body{
 
 .zapSurface{
   position: absolute;
-  inset: 10%;
+  inset: 7%;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
   border: 1px solid rgba(148,163,184,.20);
@@ -386,8 +388,8 @@ body{
 }
 
 .zapIcon{
-  width: 55%;
-  height: 55%;
+  width: 58%;
+  height: 58%;
   object-fit: contain;
   z-index: 1;
   filter: drop-shadow(0 8px 18px rgba(0,0,0,.45));
@@ -411,10 +413,6 @@ body{
   animation: hitFlash 120ms ease-out;
 }
 
-.explosion.boom{
-  animation: boom 550ms ease-out;
-}
-
 .hpPop{
   animation: hpPop 120ms ease-out;
 }
@@ -432,14 +430,16 @@ body{
   100%{ opacity: 0; }
 }
 
-@keyframes boom{
-  0%{ opacity: 0; transform: scale(.6); }
-  20%{ opacity: 1; transform: scale(1.0); }
-  100%{ opacity: 0; transform: scale(1.25); }
-}
-
 @keyframes hpPop{
   0%{ transform: scale(1); }
   50%{ transform: scale(.98); }
   100%{ transform: scale(1); }
+}
+
+
+@supports (height: 100svh) {
+  .app {
+    height: 100svh;
+    min-height: 100svh;
+  }
 }

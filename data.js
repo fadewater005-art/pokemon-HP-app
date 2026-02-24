@@ -331,3 +331,26 @@ window.POKEMON_DATA = [
     "ability": "ノーマルタイプ は 🎲1になる！"
   }
 ];
+
+// タイプ名 -> アイコン画像
+// app.js の renderTypes で参照される
+window.TYPE_ICON = {
+  normal: "./assets/types/normal.svg",
+  fire: "./assets/types/fire.svg",
+  water: "./assets/types/water.svg",
+  electric: "./assets/types/electric.svg",
+  grass: "./assets/types/fairy.svg",
+  ice: "./assets/types/ice.svg",
+  fighting: "./assets/types/fighting.svg",
+  poison: "./assets/types/ghost.svg",
+  ground: "./assets/types/ground.svg",
+  flying: "./assets/types/flying.svg",
+  psychic: "./assets/types/psychic.svg",
+  bug: "./assets/types/steel.svg",
+  rock: "./assets/types/ground.svg",
+  ghost: "./assets/types/ghost.svg",
+  dragon: "./assets/types/dragon.svg",
+  dark: "./assets/types/dark.svg",
+  steel: "./assets/types/steel.svg",
+  fairy: "./assets/types/fairy.svg"
+};
