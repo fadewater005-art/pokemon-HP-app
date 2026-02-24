@@ -161,6 +161,58 @@ body{
   border: 1px solid rgba(148,163,184,.18);
 }
 
+
+#pokemonImage.koBlink{
+  animation: koBlinkAccel 1320ms steps(1, end) forwards;
+}
+
+#pokemonImage.koGone{
+  opacity: 0;
+  transform: scale(.72);
+  filter: blur(2px) brightness(1.4);
+  transition: opacity 520ms ease-out, transform 520ms ease-out, filter 520ms ease-out;
+}
+
+.specialWave{
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid rgba(178,236,255,.78);
+  transform: translate(-50%, -50%) scale(.2);
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 16px rgba(156,221,255,.6);
+}
+
+.specialWave.emit{
+  animation: waveBurst 980ms cubic-bezier(.12,.79,.19,1) forwards;
+}
+
+.specialWave.emit::after{
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px solid rgba(183,236,255,.55);
+  animation: waveEcho 980ms ease-out forwards;
+}
+
+.specialWave.strong{
+  border-color: rgba(220,160,255,.86);
+  box-shadow: 0 0 24px rgba(209,124,255,.7);
+}
+
+.specialWave.strong.emit{
+  animation: waveBurstStrong 1180ms cubic-bezier(.1,.83,.2,1) forwards;
+}
+
+.specialWave.strong.emit::after{
+  border-color: rgba(226,174,255,.72);
+  animation: waveEchoStrong 1180ms ease-out forwards;
+}
+
 /* Flash overlay (控えめ) */
 .flashOverlay{
   position: absolute;
@@ -188,7 +240,7 @@ body{
 }
 
 .koOverlay.impact{
-  animation: screenPulse 560ms ease-out;
+  animation: screenPulse 880ms cubic-bezier(.14,.72,.21,1);
 }
 
 /* 背景をほんの少しだけ暗くして“イベント”感を出す（眩しすぎない） */
@@ -224,7 +276,7 @@ body{
 }
 
 .explosion.boom{
-  animation: koBoom 980ms cubic-bezier(.17,.74,.2,1) forwards;
+  animation: koBoom 1320ms cubic-bezier(.15,.8,.2,1) forwards;
 }
 
 .explosion.boom::before{
@@ -236,11 +288,12 @@ body{
 }
 
 @keyframes koBoom{
-  0%{ opacity: 0; transform: scale(.28) rotate(-12deg); }
-  15%{ opacity: 1; transform: scale(.78) rotate(2deg); }
-  42%{ opacity: .96; transform: scale(1.18) rotate(-1deg); }
-  75%{ opacity: .82; transform: scale(1.36) rotate(0deg); }
-  100%{ opacity: 0; transform: scale(1.62) rotate(0deg); }
+  0%{ opacity: 0; transform: scale(.18) rotate(-12deg); }
+  12%{ opacity: 1; transform: scale(.92) rotate(3deg); }
+  32%{ opacity: 1; transform: scale(1.35) rotate(-2deg); }
+  55%{ opacity: .96; transform: scale(1.58) rotate(1deg); }
+  78%{ opacity: .78; transform: scale(1.92) rotate(0deg); }
+  100%{ opacity: 0; transform: scale(2.28) rotate(0deg); }
 }
 
 @keyframes shockwave{
@@ -281,6 +334,39 @@ body{
   40%{ transform: translateY(-8px) scale(1.1); opacity: 1; }
   70%{ transform: translateY(2px) scale(.98); opacity: 1; }
   100%{ transform: translateY(0) scale(1); opacity: 1; }
+}
+
+
+@keyframes koBlinkAccel{
+  0%, 8%{ opacity: 1; }
+  10%, 15%{ opacity: .25; }
+  18%, 26%{ opacity: 1; }
+  30%, 36%{ opacity: .22; }
+  40%, 48%{ opacity: 1; }
+  52%, 56%{ opacity: .08; }
+  60%, 66%{ opacity: 1; }
+  69%, 73%{ opacity: .06; }
+  76%, 100%{ opacity: 1; }
+}
+
+@keyframes waveBurst{
+  0%{ opacity: .95; transform: translate(-50%, -50%) scale(.25); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) scale(10.2); }
+}
+
+@keyframes waveEcho{
+  0%{ opacity: .9; transform: scale(.45); }
+  100%{ opacity: 0; transform: scale(1.8); }
+}
+
+@keyframes waveBurstStrong{
+  0%{ opacity: 1; transform: translate(-50%, -50%) scale(.2); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) scale(14.5); }
+}
+
+@keyframes waveEchoStrong{
+  0%{ opacity: .95; transform: scale(.35); }
+  100%{ opacity: 0; transform: scale(2.2); }
 }
 
 /* HP bar */

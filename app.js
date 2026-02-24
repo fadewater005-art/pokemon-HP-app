@@ -9,6 +9,7 @@
   const pokemonImage = document.getElementById("pokemonImage");
   const visual = document.getElementById("visual");
   const imagePlaceholder = document.getElementById("imagePlaceholder");
+  const specialWave = document.getElementById("specialWave");
 
   const flashOverlay = document.getElementById("flashOverlay");
   const koOverlay = document.getElementById("koOverlay");
@@ -23,7 +24,9 @@
     selectedPokemonId: "",
     initialHP: 0,
     currentHP: 0,
-    koShown: false
+    koShown: false,
+    currentAbility: null,
+    abilityOverrideText: ""
   };
 
   // HP候補（固定）
@@ -140,6 +143,77 @@
     if (koOverlay) koOverlay.classList.remove("show", "impact");
     victory.classList.remove("show");
     explosion.classList.remove("boom");
+    pokemonImage.classList.remove("koBlink", "koGone");
+  }
+
+  function renderAbilityFromState() {
+    if (state.abilityOverrideText) {
+      abilityValue.textContent = state.abilityOverrideText;
+      return;
+    }
+    renderAbility(state.currentAbility);
+  }
+
+  function triggerSpecialWave(isStrong) {
+    if (!specialWave) return;
+    specialWave.classList.remove("emit", "strong");
+    void specialWave.offsetWidth;
+    specialWave.classList.add("emit");
+    if (isStrong) {
+      specialWave.classList.add("strong");
+    }
+  }
+
+  function handleComboFinished() {
+    if (comboCount <= 0) return;
+    if (state.selectedPokemonId !== "totogengar" || state.initialHP <= 0 || state.currentHP <= 0) return;
+
+    const hpRatio = state.currentHP / state.initialHP;
+    if (hpRatio < 0.2) {
+      triggerSpecialWave(true);
+      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      renderAbilityFromState();
+      return;
+    }
+    if (hpRatio < 0.5) {
+      triggerSpecialWave(false);
+      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      renderAbilityFromState();
+    }
+  }
+
+
+  function clearCombo() {
+    comboCount = 0;
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = 0;
+    if (!tapCombo) return;
+    tapCombo.classList.remove("show", "burst");
+    tapCombo.innerHTML = "";
+  }
+
+  function updateCombo() {
+    comboCount += 1;
+
+    if (!tapCombo) return;
+
+    const shownCombo = Math.min(comboCount, maxComboDisplay);
+    if (comboCount <= 1) {
+      tapCombo.classList.remove("show", "burst");
+      tapCombo.innerHTML = "";
+    } else {
+      tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
+      tapCombo.classList.add("show");
+      tapCombo.classList.remove("burst");
+      void tapCombo.offsetWidth;
+      tapCombo.classList.add("burst");
+    }
+
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = window.setTimeout(() => {
+      handleComboFinished();
+      clearCombo();
+    }, comboWindowMs);
   }
 
 
@@ -290,12 +364,17 @@
       koOverlay.classList.add("show");
       restartClass(koOverlay, "impact");
     }
+    restartClass(pokemonImage, "koBlink");
     restartClass(explosion, "boom");
     victory.classList.remove("show");
+    const vanish = window.setTimeout(() => {
+      pokemonImage.classList.add("koGone");
+    }, 1200);
     // 爆発を“見える長さ”にしてから勝利表示
     const t = window.setTimeout(() => {
       victory.classList.add("show");
-    }, 520);
+    }, 640);
+    koTimers.push(vanish);
     koTimers.push(t);
     updateButtonState();
   }
@@ -365,16 +444,20 @@
   function updateFromPokemon(pokemon) {
     if (!pokemon) {
       state.selectedPokemonId = "";
+      state.currentAbility = null;
+      state.abilityOverrideText = "";
       renderTypes([]);
-      renderAbility(null);
+      renderAbilityFromState();
       setImage("");
       updateButtonState();
       return;
     }
 
     state.selectedPokemonId = pokemon.id;
+    state.currentAbility = pokemon.ability;
+    state.abilityOverrideText = "";
     renderTypes(pokemon.types);
-    renderAbility(pokemon.ability);
+    renderAbilityFromState();
     setImage(pokemon.image);
 
     resetKO();
@@ -406,6 +489,11 @@
   zapButton.addEventListener("click", () => {
     if (!canZap()) return;
     if (state.currentHP <= 0) return;
+
+    if (state.abilityOverrideText) {
+      state.abilityOverrideText = "";
+      renderAbilityFromState();
+    }
 
     // 減らす
     state.currentHP = Math.max(0, state.currentHP - 1);
