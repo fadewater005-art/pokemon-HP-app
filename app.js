@@ -37,8 +37,6 @@
   const comboWindowMs = 3200;
   const comboVisibleMs = 1600;
   const maxComboDisplay = 30;
-  const comboWindowMs = 1800;
-  const comboVisibleMs = 900;
   let tapTimestamps = [];
 
   // iOSでのズーム/選択誤作動を抑える（雷ボタンだけ）
@@ -153,7 +151,6 @@
     if (!tapCombo) return;
     tapCombo.classList.remove("show", "burst");
     tapCombo.innerHTML = "";
-    tapCombo.textContent = "";
   }
 
   function updateCombo() {
@@ -172,13 +169,6 @@
     }
 
     tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
-    if (comboCount <= 1) {
-      tapCombo.classList.remove("show", "burst");
-      tapCombo.textContent = "";
-      return;
-    }
-
-    tapCombo.textContent = `${comboCount} HIT!`;
     tapCombo.classList.add("show");
     tapCombo.classList.remove("burst");
     void tapCombo.offsetWidth;
@@ -188,7 +178,6 @@
     comboClearTimer = window.setTimeout(() => {
       tapCombo.classList.remove("show");
       tapCombo.innerHTML = "";
-      tapCombo.textContent = "";
       tapTimestamps = [];
     }, comboVisibleMs);
   }
