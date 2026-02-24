@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Pokemon HP Counter</title>
+  <link rel="stylesheet" href="./styles.css?v=20260203_2" />
+</head>
+<body>
+  <main class="app" aria-label="Pokemon HP Counter">
+    <header class="header">
+      <select id="pokemonSelect" class="select selectPokemon" aria-label="ポケモン選択">
+        <option value="">ポケモン</option>
+      </select>
+
+      <select id="hpSelect" class="select selectHp" aria-label="初期HP">
+        <option value="">HP</option>
+      </select>
+
+      <div id="typeIcons" class="typeIcons" aria-label="タイプ"></div>
+    </header>
+
+    <section class="visual" id="visual" aria-label="ポケモン画像">
+      <img id="pokemonImage" alt="ポケモン画像" />
+      <div id="imagePlaceholder" class="imagePlaceholder">画像未設定</div>
+      <div id="flashOverlay" class="flashOverlay" aria-hidden="true"></div>
+    </section>
+
+    <div class="hpBarWrap" aria-label="HPバー">
+      <div class="hpBar">
+        <div id="hpFill" class="hpFill"></div>
+      </div>
+    </div>
+
+    <section class="bottom" aria-label="ステータスと操作">
+      <div class="stats">
+        <div class="stat">
+          <div class="statLabel">HP</div>
+          <div id="hpNow" class="statValue hpValue">—</div>
+        </div>
+
+        <div class="stat">
+	          <div class="statLabel">とくしゅのうりょく</div>
+	          <div id="abilityValue" class="statValue abilityValue">—</div>
+        </div>
+      </div>
+
+      <button id="zapButton" class="zapButton" type="button" aria-label="雷ボタン">
+        <span class="zapSurface" aria-hidden="true"></span>
+        <img class="zapIcon" src="./assets/icons/lightning_transparent.png" alt="" />
+      </button>
+    </section>
+  </main>
+
+  <!-- KO演出は画面全体に出す（画像枠でクリップされないように） -->
+  <div id="koOverlay" class="koOverlay" aria-hidden="true">
+    <div id="explosion" class="explosion" aria-hidden="true"></div>
+    <div id="victory" class="victory" aria-live="polite">みんなのかち</div>
+  </div>
+
+  <script src="./data.js?v=20260203_2"></script>
+  <script src="./app.js?v=20260203_2"></script>
+</body>
+</html>
