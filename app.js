@@ -31,6 +31,7 @@
 
   // KO演出のタイマー管理（連打や再設定で破綻しないように）
   let koTimers = [];
+  let imageRequestId = 0;
 
   // iOSでのズーム/選択誤作動を抑える（雷ボタンだけ）
   zapButton.addEventListener("pointerdown", (e) => {
@@ -137,17 +138,26 @@
   }
 
   function setImage(src) {
+    const requestId = ++imageRequestId;
+
     if (!src) {
+      pokemonImage.removeAttribute("src");
       pokemonImage.style.display = "none";
       imagePlaceholder.style.display = "grid";
       return;
     }
+
+    pokemonImage.style.display = "none";
+    imagePlaceholder.style.display = "grid";
+
     pokemonImage.src = src;
     pokemonImage.onload = () => {
+      if (requestId !== imageRequestId) return;
       pokemonImage.style.display = "block";
       imagePlaceholder.style.display = "none";
     };
     pokemonImage.onerror = () => {
+      if (requestId !== imageRequestId) return;
       pokemonImage.style.display = "none";
       imagePlaceholder.style.display = "grid";
     };
