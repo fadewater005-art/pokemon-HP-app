@@ -10,6 +10,7 @@
   const visual = document.getElementById("visual");
   const imagePlaceholder = document.getElementById("imagePlaceholder");
   const specialWave = document.getElementById("specialWave");
+  const specialBubble = document.getElementById("specialBubble");
 
   const flashOverlay = document.getElementById("flashOverlay");
   const koOverlay = document.getElementById("koOverlay");
@@ -26,7 +27,8 @@
     currentHP: 0,
     koShown: false,
     currentAbility: null,
-    abilityOverrideText: ""
+    abilityOverrideText: "",
+    shownHpLines: new Set()
   };
 
   // HP候補（固定）
@@ -143,7 +145,22 @@
     if (koOverlay) koOverlay.classList.remove("show", "impact");
     victory.classList.remove("show");
     explosion.classList.remove("boom");
-    pokemonImage.classList.remove("koBlink", "koGone");
+    pokemonImage.classList.remove("koPrelude", "koGone");
+  }
+
+  function hideSpecialBubble() {
+    if (!specialBubble) return;
+    specialBubble.classList.remove("show", "strong");
+    specialBubble.textContent = "";
+  }
+
+  function showSpecialBubble(message, isStrong = false) {
+    if (!specialBubble) return;
+    specialBubble.classList.remove("show", "strong");
+    specialBubble.textContent = message;
+    void specialBubble.offsetWidth;
+    specialBubble.classList.add("show");
+    if (isStrong) specialBubble.classList.add("strong");
   }
 
   function renderAbilityFromState() {
@@ -164,6 +181,33 @@
     }
   }
 
+
+  const TOTOGENGAR_BAN_TEXT = "つぎのひとは サイコロきんし！";
+
+  const totogengarHpLines = [
+    { threshold: 90, text: "ひるねでも するか！" },
+    { threshold: 80, text: "ぜんぜん いたくないぜ！" },
+    { threshold: 60, text: "ひるね しすぎた！" },
+    { threshold: 40, text: "いたすぎ けんしん３にん きたぞ！" },
+    { threshold: 30, text: "いたすぎ けんしん８００にん！" },
+    { threshold: 10, text: "たたたたたすけて～！" }
+  ];
+
+  function handleTotogengarHpLineOnHit(prevHP, nextHP) {
+    if (state.selectedPokemonId !== "totogengar" || state.initialHP <= 0 || nextHP <= 0) return;
+
+    const prevRatio = (prevHP / state.initialHP) * 100;
+    const nextRatio = (nextHP / state.initialHP) * 100;
+
+    for (const line of totogengarHpLines) {
+      if (prevRatio >= line.threshold && nextRatio < line.threshold && !state.shownHpLines.has(line.threshold)) {
+        state.shownHpLines.add(line.threshold);
+        showSpecialBubble(line.text);
+        break;
+      }
+    }
+  }
+
   function handleComboFinished() {
     if (comboCount <= 0) return;
     if (state.selectedPokemonId !== "totogengar" || state.initialHP <= 0 || state.currentHP <= 0) return;
@@ -171,13 +215,15 @@
     const hpRatio = state.currentHP / state.initialHP;
     if (hpRatio < 0.2) {
       triggerSpecialWave(true);
-      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      showSpecialBubble(TOTOGENGAR_BAN_TEXT, true);
+      state.abilityOverrideText = TOTOGENGAR_BAN_TEXT;
       renderAbilityFromState();
       return;
     }
     if (hpRatio < 0.5) {
       triggerSpecialWave(false);
-      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      showSpecialBubble(TOTOGENGAR_BAN_TEXT);
+      state.abilityOverrideText = TOTOGENGAR_BAN_TEXT;
       renderAbilityFromState();
     }
   }
@@ -283,6 +329,8 @@
   function setHP(initial) {
     state.initialHP = initial;
     state.currentHP = initial;
+    state.shownHpLines.clear();
+    hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
       renderAbilityFromState();
@@ -335,16 +383,19 @@
       koOverlay.classList.add("show");
       restartClass(koOverlay, "impact");
     }
-    restartClass(pokemonImage, "koBlink");
-    restartClass(explosion, "boom");
+    restartClass(pokemonImage, "koPrelude");
     victory.classList.remove("show");
     const vanish = window.setTimeout(() => {
       pokemonImage.classList.add("koGone");
-    }, 1480);
+    }, 1820);
+    const boom = window.setTimeout(() => {
+      restartClass(explosion, "boom");
+    }, 1600);
     // 爆発を“見える長さ”にしてから勝利表示
     const t = window.setTimeout(() => {
       victory.classList.add("show");
-    }, 760);
+    }, 2300);
+    koTimers.push(boom);
     koTimers.push(vanish);
     koTimers.push(t);
     updateButtonState();
@@ -417,6 +468,8 @@
       state.selectedPokemonId = "";
       state.currentAbility = null;
       state.abilityOverrideText = "";
+      state.shownHpLines.clear();
+      hideSpecialBubble();
       renderTypes([]);
       renderAbilityFromState();
       setImage("");
@@ -427,6 +480,8 @@
     state.selectedPokemonId = pokemon.id;
     state.currentAbility = pokemon.ability;
     state.abilityOverrideText = "";
+    state.shownHpLines.clear();
+    hideSpecialBubble();
     renderTypes(pokemon.types);
     renderAbilityFromState();
     setImage(pokemon.image);
@@ -461,13 +516,16 @@
     if (!canZap()) return;
     if (state.currentHP <= 0) return;
 
+    hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
       renderAbilityFromState();
     }
 
     // 減らす
+    const prevHP = state.currentHP;
     state.currentHP = Math.max(0, state.currentHP - 1);
+    handleTotogengarHpLineOnHit(prevHP, state.currentHP);
     hpNowEl.textContent = String(state.currentHP);
     updateHpBar();
 
