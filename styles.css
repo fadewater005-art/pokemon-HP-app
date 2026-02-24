@@ -431,9 +431,6 @@ body{
   animation: hitFlash 120ms ease-out;
 }
 
-.explosion.boom{
-  animation: boom 550ms ease-out;
-}
 
 .hpPop{
   animation: hpPop 120ms ease-out;
@@ -452,11 +449,6 @@ body{
   100%{ opacity: 0; }
 }
 
-@keyframes boom{
-  0%{ opacity: 0; transform: scale(.6); }
-  20%{ opacity: 1; transform: scale(1.0); }
-  100%{ opacity: 0; transform: scale(1.25); }
-}
 
 @keyframes hpPop{
   0%{ transform: scale(1); }
