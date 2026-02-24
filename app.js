@@ -34,6 +34,9 @@
   let koTimers = [];
   let imageRequestId = 0;
   let comboClearTimer = 0;
+  const comboWindowMs = 3200;
+  const comboVisibleMs = 1600;
+  const maxComboDisplay = 30;
   const comboWindowMs = 1800;
   const comboVisibleMs = 900;
   let tapTimestamps = [];
@@ -149,6 +152,7 @@
     comboClearTimer = 0;
     if (!tapCombo) return;
     tapCombo.classList.remove("show", "burst");
+    tapCombo.innerHTML = "";
     tapCombo.textContent = "";
   }
 
@@ -160,6 +164,14 @@
     if (!tapCombo) return;
 
     const comboCount = tapTimestamps.length;
+    const shownCombo = Math.min(comboCount, maxComboDisplay);
+    if (comboCount <= 1) {
+      tapCombo.classList.remove("show", "burst");
+      tapCombo.innerHTML = "";
+      return;
+    }
+
+    tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
     if (comboCount <= 1) {
       tapCombo.classList.remove("show", "burst");
       tapCombo.textContent = "";
@@ -175,6 +187,7 @@
     if (comboClearTimer) clearTimeout(comboClearTimer);
     comboClearTimer = window.setTimeout(() => {
       tapCombo.classList.remove("show");
+      tapCombo.innerHTML = "";
       tapCombo.textContent = "";
       tapTimestamps = [];
     }, comboVisibleMs);

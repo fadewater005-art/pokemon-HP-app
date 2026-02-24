@@ -438,6 +438,20 @@ body{
 
 .tapCombo{
   position: absolute;
+  top: -2%;
+  right: 2%;
+  z-index: 2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.82);
+  border: 1px solid rgba(255,255,255,.2);
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #ffe58f;
+  text-shadow: 0 4px 14px rgba(0,0,0,.5);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
   top: 6%;
   right: 10%;
   z-index: 2;
@@ -453,6 +467,17 @@ body{
   opacity: 0;
   transform: translateY(-6px) scale(.9);
   transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+
+.comboNumber{
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: .01em;
+}
+
+.comboUnit{
+  font-size: 14px;
+  line-height: 1;
 }
 
 .tapCombo.show{
@@ -570,6 +595,17 @@ body{
   }
 
   .tapCombo{
+    top: 0;
+    right: 0;
+    padding: 5px 9px;
+  }
+
+  .comboNumber{
+    font-size: 24px;
+  }
+
+  .comboUnit{
+    font-size: 12px;
     font-size: 12px;
     padding: 5px 8px;
   }
