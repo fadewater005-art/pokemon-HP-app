@@ -9,6 +9,7 @@
   const pokemonImage = document.getElementById("pokemonImage");
   const visual = document.getElementById("visual");
   const imagePlaceholder = document.getElementById("imagePlaceholder");
+  const specialWave = document.getElementById("specialWave");
 
   const flashOverlay = document.getElementById("flashOverlay");
   const koOverlay = document.getElementById("koOverlay");
@@ -17,12 +18,15 @@
 
   const hpNowEl = document.getElementById("hpNow");
   const hpFill = document.getElementById("hpFill");
+  const tapCombo = document.getElementById("tapCombo");
 
   const state = {
     selectedPokemonId: "",
     initialHP: 0,
     currentHP: 0,
-    koShown: false
+    koShown: false,
+    currentAbility: null,
+    abilityOverrideText: ""
   };
 
   // HP候補（固定）
@@ -31,6 +35,11 @@
 
   // KO演出のタイマー管理（連打や再設定で破綻しないように）
   let koTimers = [];
+  let imageRequestId = 0;
+  let comboClearTimer = 0;
+  const comboWindowMs = 3200;
+  const maxComboDisplay = 30;
+  let comboCount = 0;
 
   // iOSでのズーム/選択誤作動を抑える（雷ボタンだけ）
   zapButton.addEventListener("pointerdown", (e) => {
@@ -131,23 +140,103 @@
     // 予約済みタイマーをクリア
     for (const t of koTimers) clearTimeout(t);
     koTimers = [];
-    if (koOverlay) koOverlay.classList.remove("show");
+    if (koOverlay) koOverlay.classList.remove("show", "impact");
     victory.classList.remove("show");
     explosion.classList.remove("boom");
+    pokemonImage.classList.remove("koBlink", "koGone");
+  }
+
+  function renderAbilityFromState() {
+    if (state.abilityOverrideText) {
+      abilityValue.textContent = state.abilityOverrideText;
+      return;
+    }
+    renderAbility(state.currentAbility);
+  }
+
+  function triggerSpecialWave(isStrong) {
+    if (!specialWave) return;
+    specialWave.classList.remove("emit", "strong");
+    void specialWave.offsetWidth;
+    specialWave.classList.add("emit");
+    if (isStrong) {
+      specialWave.classList.add("strong");
+    }
+  }
+
+  function handleComboFinished() {
+    if (comboCount <= 0) return;
+    if (state.selectedPokemonId !== "totogengar" || state.initialHP <= 0 || state.currentHP <= 0) return;
+
+    const hpRatio = state.currentHP / state.initialHP;
+    if (hpRatio < 0.2) {
+      triggerSpecialWave(true);
+      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      renderAbilityFromState();
+      return;
+    }
+    if (hpRatio < 0.5) {
+      triggerSpecialWave(false);
+      state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
+      renderAbilityFromState();
+    }
+  }
+
+
+  function clearCombo() {
+    comboCount = 0;
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = 0;
+    if (!tapCombo) return;
+    tapCombo.classList.remove("show", "burst");
+    tapCombo.innerHTML = "";
+  }
+
+  function updateCombo() {
+    comboCount += 1;
+
+    if (!tapCombo) return;
+
+    const shownCombo = Math.min(comboCount, maxComboDisplay);
+    if (comboCount <= 1) {
+      tapCombo.classList.remove("show", "burst");
+      tapCombo.innerHTML = "";
+    } else {
+      tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
+      tapCombo.classList.add("show");
+      tapCombo.classList.remove("burst");
+      void tapCombo.offsetWidth;
+      tapCombo.classList.add("burst");
+    }
+
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = window.setTimeout(() => {
+      handleComboFinished();
+      clearCombo();
+    }, comboWindowMs);
   }
 
   function setImage(src) {
+    const requestId = ++imageRequestId;
+
     if (!src) {
+      pokemonImage.removeAttribute("src");
       pokemonImage.style.display = "none";
       imagePlaceholder.style.display = "grid";
       return;
     }
+
+    pokemonImage.style.display = "none";
+    imagePlaceholder.style.display = "grid";
+
     pokemonImage.src = src;
     pokemonImage.onload = () => {
+      if (requestId !== imageRequestId) return;
       pokemonImage.style.display = "block";
       imagePlaceholder.style.display = "none";
     };
     pokemonImage.onerror = () => {
+      if (requestId !== imageRequestId) return;
       pokemonImage.style.display = "none";
       imagePlaceholder.style.display = "grid";
     };
@@ -156,12 +245,29 @@
   function renderTypes(types) {
     typeIcons.textContent = "";
     const iconMap = window.TYPE_ICON || {};
-    (types || []).slice(0, 2).forEach(t => {
+
+    (types || []).slice(0, 2).forEach((t) => {
       const src = iconMap[t];
-      if (!src) return;
+      const appendBadge = () => {
+        const badge = document.createElement("span");
+        badge.className = "typeBadge";
+        badge.textContent = t;
+        typeIcons.appendChild(badge);
+      };
+
+      if (!src) {
+        appendBadge();
+        return;
+      }
+
       const img = document.createElement("img");
       img.src = src;
       img.alt = t;
+      img.loading = "lazy";
+      img.onerror = () => {
+        img.remove();
+        appendBadge();
+      };
       typeIcons.appendChild(img);
     });
   }
@@ -177,10 +283,15 @@
   function setHP(initial) {
     state.initialHP = initial;
     state.currentHP = initial;
+    if (state.abilityOverrideText) {
+      state.abilityOverrideText = "";
+      renderAbilityFromState();
+    }
     hpNowEl.textContent = initial > 0 ? String(initial) : "—";
     updateHpBar();
     updateButtonState();
     resetKO();
+    clearCombo();
   }
 
   function updateHpBar() {
@@ -220,13 +331,21 @@
   function triggerKO() {
     if (state.koShown) return;
     state.koShown = true;
-    if (koOverlay) koOverlay.classList.add("show");
+    if (koOverlay) {
+      koOverlay.classList.add("show");
+      restartClass(koOverlay, "impact");
+    }
+    restartClass(pokemonImage, "koBlink");
     restartClass(explosion, "boom");
     victory.classList.remove("show");
+    const vanish = window.setTimeout(() => {
+      pokemonImage.classList.add("koGone");
+    }, 1480);
     // 爆発を“見える長さ”にしてから勝利表示
     const t = window.setTimeout(() => {
       victory.classList.add("show");
-    }, 650);
+    }, 760);
+    koTimers.push(vanish);
     koTimers.push(t);
     updateButtonState();
   }
@@ -296,16 +415,20 @@
   function updateFromPokemon(pokemon) {
     if (!pokemon) {
       state.selectedPokemonId = "";
+      state.currentAbility = null;
+      state.abilityOverrideText = "";
       renderTypes([]);
-      renderAbility(null);
+      renderAbilityFromState();
       setImage("");
       updateButtonState();
       return;
     }
 
     state.selectedPokemonId = pokemon.id;
+    state.currentAbility = pokemon.ability;
+    state.abilityOverrideText = "";
     renderTypes(pokemon.types);
-    renderAbility(pokemon.ability);
+    renderAbilityFromState();
     setImage(pokemon.image);
 
     resetKO();
@@ -338,6 +461,11 @@
     if (!canZap()) return;
     if (state.currentHP <= 0) return;
 
+    if (state.abilityOverrideText) {
+      state.abilityOverrideText = "";
+      renderAbilityFromState();
+    }
+
     // 減らす
     state.currentHP = Math.max(0, state.currentHP - 1);
     hpNowEl.textContent = String(state.currentHP);
@@ -345,10 +473,12 @@
 
     // 演出＆音
     triggerHitFx();
+    updateCombo();
     playHitSound();
 
     if (state.currentHP === 0) {
       triggerKO();
+      clearCombo();
     }
 
     updateButtonState();
