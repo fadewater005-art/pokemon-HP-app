@@ -10,7 +10,6 @@
   const visual = document.getElementById("visual");
   const imagePlaceholder = document.getElementById("imagePlaceholder");
   const specialWave = document.getElementById("specialWave");
-  const specialBubble = document.getElementById("specialBubble");
 
   const flashOverlay = document.getElementById("flashOverlay");
   const koOverlay = document.getElementById("koOverlay");
@@ -144,22 +143,7 @@
     if (koOverlay) koOverlay.classList.remove("show", "impact");
     victory.classList.remove("show");
     explosion.classList.remove("boom");
-    pokemonImage.classList.remove("koPrelude", "koGone");
-  }
-
-  function hideSpecialBubble() {
-    if (!specialBubble) return;
-    specialBubble.classList.remove("show", "strong");
-    specialBubble.textContent = "";
-  }
-
-  function showSpecialBubble(isStrong) {
-    if (!specialBubble) return;
-    specialBubble.classList.remove("show", "strong");
-    specialBubble.textContent = "次にサイコロをふれるのは二人まで！";
-    void specialBubble.offsetWidth;
-    specialBubble.classList.add("show");
-    if (isStrong) specialBubble.classList.add("strong");
+    pokemonImage.classList.remove("koBlink", "koGone");
   }
 
   function renderAbilityFromState() {
@@ -187,14 +171,12 @@
     const hpRatio = state.currentHP / state.initialHP;
     if (hpRatio < 0.2) {
       triggerSpecialWave(true);
-      showSpecialBubble(true);
       state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
       renderAbilityFromState();
       return;
     }
     if (hpRatio < 0.5) {
       triggerSpecialWave(false);
-      showSpecialBubble(false);
       state.abilityOverrideText = "次にサイコロをふれるのは二人まで！";
       renderAbilityFromState();
     }
@@ -301,7 +283,6 @@
   function setHP(initial) {
     state.initialHP = initial;
     state.currentHP = initial;
-    hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
       renderAbilityFromState();
@@ -354,19 +335,16 @@
       koOverlay.classList.add("show");
       restartClass(koOverlay, "impact");
     }
-    restartClass(pokemonImage, "koPrelude");
+    restartClass(pokemonImage, "koBlink");
+    restartClass(explosion, "boom");
     victory.classList.remove("show");
     const vanish = window.setTimeout(() => {
       pokemonImage.classList.add("koGone");
-    }, 1600);
-    const boom = window.setTimeout(() => {
-      restartClass(explosion, "boom");
-    }, 1380);
+    }, 1480);
     // 爆発を“見える長さ”にしてから勝利表示
     const t = window.setTimeout(() => {
       victory.classList.add("show");
-    }, 1950);
-    koTimers.push(boom);
+    }, 760);
     koTimers.push(vanish);
     koTimers.push(t);
     updateButtonState();
@@ -439,7 +417,6 @@
       state.selectedPokemonId = "";
       state.currentAbility = null;
       state.abilityOverrideText = "";
-      hideSpecialBubble();
       renderTypes([]);
       renderAbilityFromState();
       setImage("");
@@ -450,7 +427,6 @@
     state.selectedPokemonId = pokemon.id;
     state.currentAbility = pokemon.ability;
     state.abilityOverrideText = "";
-    hideSpecialBubble();
     renderTypes(pokemon.types);
     renderAbilityFromState();
     setImage(pokemon.image);
@@ -485,7 +461,6 @@
     if (!canZap()) return;
     if (state.currentHP <= 0) return;
 
-    hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
       renderAbilityFromState();
