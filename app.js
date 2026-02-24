@@ -216,6 +216,39 @@
     }, comboWindowMs);
   }
 
+
+  function clearCombo() {
+    comboCount = 0;
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = 0;
+    if (!tapCombo) return;
+    tapCombo.classList.remove("show", "burst");
+    tapCombo.innerHTML = "";
+  }
+
+  function updateCombo() {
+    comboCount += 1;
+
+    if (!tapCombo) return;
+
+    const shownCombo = Math.min(comboCount, maxComboDisplay);
+    if (comboCount <= 1) {
+      tapCombo.classList.remove("show", "burst");
+      tapCombo.innerHTML = "";
+    } else {
+      tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
+      tapCombo.classList.add("show");
+      tapCombo.classList.remove("burst");
+      void tapCombo.offsetWidth;
+      tapCombo.classList.add("burst");
+    }
+
+    if (comboClearTimer) clearTimeout(comboClearTimer);
+    comboClearTimer = window.setTimeout(() => {
+      clearCombo();
+    }, comboWindowMs);
+  }
+
   function setImage(src) {
     const requestId = ++imageRequestId;
 
