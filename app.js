@@ -166,12 +166,29 @@
   function renderTypes(types) {
     typeIcons.textContent = "";
     const iconMap = window.TYPE_ICON || {};
-    (types || []).slice(0, 2).forEach(t => {
+
+    (types || []).slice(0, 2).forEach((t) => {
       const src = iconMap[t];
-      if (!src) return;
+      const appendBadge = () => {
+        const badge = document.createElement("span");
+        badge.className = "typeBadge";
+        badge.textContent = t;
+        typeIcons.appendChild(badge);
+      };
+
+      if (!src) {
+        appendBadge();
+        return;
+      }
+
       const img = document.createElement("img");
       img.src = src;
       img.alt = t;
+      img.loading = "lazy";
+      img.onerror = () => {
+        img.remove();
+        appendBadge();
+      };
       typeIcons.appendChild(img);
     });
   }
