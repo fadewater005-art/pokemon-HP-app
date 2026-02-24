@@ -253,16 +253,16 @@ body{
 
 .explosion{
   position: absolute;
-  inset: -18%;
+  inset: -24%;
   opacity: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,.98), rgba(255,255,255,0) 33%),
-    radial-gradient(circle at 38% 40%, rgba(255,224,120,.95), rgba(255,224,120,0) 40%),
-    radial-gradient(circle at 60% 52%, rgba(255,120,24,.88), rgba(255,120,24,0) 48%),
-    conic-gradient(from 0deg, rgba(255,255,255,.50), rgba(255,214,10,.10), rgba(255,90,0,.36), rgba(255,255,255,.50));
-  filter: blur(0.2px) saturate(1.2);
-  transform: scale(.42);
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,1), rgba(255,255,255,0) 28%),
+    radial-gradient(circle at 36% 40%, rgba(255,232,128,.98), rgba(255,232,128,0) 36%),
+    radial-gradient(circle at 60% 54%, rgba(255,136,32,.92), rgba(255,136,32,0) 45%),
+    conic-gradient(from 0deg, rgba(255,255,255,.58), rgba(255,214,10,.16), rgba(255,90,0,.48), rgba(255,255,255,.58));
+  filter: blur(0.3px) saturate(1.35);
+  transform: scale(.32);
 }
 
 .explosion::before,
@@ -276,24 +276,25 @@ body{
 }
 
 .explosion.boom{
-  animation: koBoom 1320ms cubic-bezier(.15,.8,.2,1) forwards;
+  animation: koBoom 1780ms cubic-bezier(.12,.78,.2,1) forwards;
 }
 
 .explosion.boom::before{
-  animation: shockwave 860ms ease-out forwards;
+  animation: shockwave 1200ms ease-out forwards;
 }
 
 .explosion.boom::after{
-  animation: shockwave 980ms ease-out 90ms forwards;
+  animation: shockwave 1460ms ease-out 140ms forwards;
 }
 
 @keyframes koBoom{
-  0%{ opacity: 0; transform: scale(.18) rotate(-12deg); }
-  12%{ opacity: 1; transform: scale(.92) rotate(3deg); }
-  32%{ opacity: 1; transform: scale(1.35) rotate(-2deg); }
-  55%{ opacity: .96; transform: scale(1.58) rotate(1deg); }
-  78%{ opacity: .78; transform: scale(1.92) rotate(0deg); }
-  100%{ opacity: 0; transform: scale(2.28) rotate(0deg); }
+  0%{ opacity: 0; transform: scale(.12) rotate(-14deg); }
+  10%{ opacity: 1; transform: scale(.96) rotate(5deg); }
+  24%{ opacity: 1; transform: scale(1.48) rotate(-4deg); }
+  42%{ opacity: 1; transform: scale(1.95) rotate(2deg); }
+  62%{ opacity: .96; transform: scale(2.25) rotate(-1deg); }
+  80%{ opacity: .72; transform: scale(2.7) rotate(0deg); }
+  100%{ opacity: 0; transform: scale(3.15) rotate(0deg); }
 }
 
 @keyframes shockwave{
@@ -338,15 +339,17 @@ body{
 
 
 @keyframes koBlinkAccel{
-  0%, 8%{ opacity: 1; }
-  10%, 15%{ opacity: .25; }
-  18%, 26%{ opacity: 1; }
-  30%, 36%{ opacity: .22; }
-  40%, 48%{ opacity: 1; }
-  52%, 56%{ opacity: .08; }
-  60%, 66%{ opacity: 1; }
-  69%, 73%{ opacity: .06; }
-  76%, 100%{ opacity: 1; }
+  0%, 10%{ opacity: 1; }
+  12%, 22%{ opacity: .35; }
+  24%, 34%{ opacity: 1; }
+  36%, 44%{ opacity: .2; }
+  46%, 54%{ opacity: 1; }
+  56%, 61%{ opacity: .12; }
+  63%, 68%{ opacity: 1; }
+  70%, 74%{ opacity: .08; }
+  76%, 79%{ opacity: 1; }
+  81%, 84%{ opacity: .03; }
+  86%, 100%{ opacity: 1; }
 }
 
 @keyframes waveBurst{
@@ -698,9 +701,31 @@ body{
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .visual.hit,
+  .flashOverlay.flash,
+  #hpNow.hpPop,
+  .tapCombo.burst,
+  .zapButton:active .zapSurface,
+  .zapButton:active .zapIcon{
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .koOverlay.impact{
+    animation-duration: 620ms !important;
+  }
+
+  .explosion.boom{
+    animation-duration: 1320ms !important;
+  }
+
+  #pokemonImage.koBlink{
+    animation-duration: 1200ms !important;
+  }
+
+  .specialWave.emit,
+  .specialWave.strong.emit{
+    animation-duration: 900ms !important;
   }
 }
