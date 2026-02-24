@@ -35,9 +35,8 @@
   let imageRequestId = 0;
   let comboClearTimer = 0;
   const comboWindowMs = 3200;
-  const comboVisibleMs = 1600;
   const maxComboDisplay = 30;
-  let tapTimestamps = [];
+  let comboCount = 0;
 
   // iOSでのズーム/選択誤作動を抑える（雷ボタンだけ）
   zapButton.addEventListener("pointerdown", (e) => {
@@ -145,7 +144,7 @@
 
 
   function clearCombo() {
-    tapTimestamps = [];
+    comboCount = 0;
     if (comboClearTimer) clearTimeout(comboClearTimer);
     comboClearTimer = 0;
     if (!tapCombo) return;
@@ -154,32 +153,26 @@
   }
 
   function updateCombo() {
-    const now = Date.now();
-    tapTimestamps.push(now);
-    tapTimestamps = tapTimestamps.filter((t) => now - t <= comboWindowMs);
+    comboCount += 1;
 
     if (!tapCombo) return;
 
-    const comboCount = tapTimestamps.length;
     const shownCombo = Math.min(comboCount, maxComboDisplay);
     if (comboCount <= 1) {
       tapCombo.classList.remove("show", "burst");
       tapCombo.innerHTML = "";
-      return;
+    } else {
+      tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
+      tapCombo.classList.add("show");
+      tapCombo.classList.remove("burst");
+      void tapCombo.offsetWidth;
+      tapCombo.classList.add("burst");
     }
-
-    tapCombo.innerHTML = `<span class="comboNumber">${shownCombo}</span><span class="comboUnit"> HIT!</span>`;
-    tapCombo.classList.add("show");
-    tapCombo.classList.remove("burst");
-    void tapCombo.offsetWidth;
-    tapCombo.classList.add("burst");
 
     if (comboClearTimer) clearTimeout(comboClearTimer);
     comboClearTimer = window.setTimeout(() => {
-      tapCombo.classList.remove("show");
-      tapCombo.innerHTML = "";
-      tapTimestamps = [];
-    }, comboVisibleMs);
+      clearCombo();
+    }, comboWindowMs);
   }
 
   function setImage(src) {
