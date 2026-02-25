@@ -39,6 +39,7 @@
   let koTimers = [];
   let imageRequestId = 0;
   let comboClearTimer = 0;
+  let lowHpAlertTimer = 0;
   const comboWindowMs = 3200;
   const maxComboDisplay = 30;
   let comboCount = 0;
@@ -182,7 +183,7 @@
   }
 
 
-  const TOTOGENGAR_BAN_TEXT = "つぎのひとは サイコロきんし！";
+  const TOTOGENGAR_BAN_TEXT = "つぎのひとは\nサイコロきんし！";
 
   const totogengarHpLines = [
     { threshold: 90, text: "ひるねでも するか！" },
@@ -340,6 +341,7 @@
     updateButtonState();
     resetKO();
     clearCombo();
+    updateLowHpAlert();
   }
 
   function updateHpBar() {
@@ -390,6 +392,7 @@
     }, 1820);
     const boom = window.setTimeout(() => {
       restartClass(explosion, "boom");
+      playKoBoomSound();
     }, 1600);
     // 爆発を“見える長さ”にしてから勝利表示
     const t = window.setTimeout(() => {
@@ -399,6 +402,7 @@
     koTimers.push(vanish);
     koTimers.push(t);
     updateButtonState();
+    stopLowHpAlert();
   }
 
   // 子供向けの軽い衝撃音（Web Audio生成）
@@ -463,6 +467,78 @@
     osc.stop(t0 + 0.11);
   }
 
+  function playKoBoomSound() {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(72, t0 + 0.32);
+
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.36);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.38);
+  }
+
+  function playLowHpBeep() {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(920, t0);
+
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.018, t0 + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.1);
+  }
+
+  function stopLowHpAlert() {
+    if (!lowHpAlertTimer) return;
+    clearInterval(lowHpAlertTimer);
+    lowHpAlertTimer = 0;
+  }
+
+  function updateLowHpAlert() {
+    const isLowHp = state.initialHP > 0 && state.currentHP > 0 && state.currentHP / state.initialHP < 0.2;
+    if (!isLowHp || state.koShown || !state.selectedPokemonId) {
+      stopLowHpAlert();
+      return;
+    }
+    if (lowHpAlertTimer) return;
+
+    playLowHpBeep();
+    lowHpAlertTimer = window.setInterval(() => {
+      const stillLow = state.selectedPokemonId && state.initialHP > 0 && state.currentHP > 0 && state.currentHP / state.initialHP < 0.2;
+      if (state.koShown || !stillLow) {
+        stopLowHpAlert();
+        return;
+      }
+      playLowHpBeep();
+    }, 700);
+  }
+
+  function resetOverrideOnNewComboStart() {
+    hideSpecialBubble();
+    if (state.abilityOverrideText) {
+      state.abilityOverrideText = "";
+      renderAbilityFromState();
+    }
+  }
+
   function updateFromPokemon(pokemon) {
     if (!pokemon) {
       state.selectedPokemonId = "";
@@ -474,6 +550,7 @@
       renderAbilityFromState();
       setImage("");
       updateButtonState();
+      stopLowHpAlert();
       return;
     }
 
@@ -488,6 +565,7 @@
 
     resetKO();
     updateButtonState();
+    updateLowHpAlert();
   }
 
   pokemonSelect.addEventListener("change", () => {
@@ -516,10 +594,8 @@
     if (!canZap()) return;
     if (state.currentHP <= 0) return;
 
-    hideSpecialBubble();
-    if (state.abilityOverrideText) {
-      state.abilityOverrideText = "";
-      renderAbilityFromState();
+    if (comboCount === 0) {
+      resetOverrideOnNewComboStart();
     }
 
     // 減らす
@@ -528,6 +604,7 @@
     handleTotogengarHpLineOnHit(prevHP, state.currentHP);
     hpNowEl.textContent = String(state.currentHP);
     updateHpBar();
+    updateLowHpAlert();
 
     // 演出＆音
     triggerHitFx();
