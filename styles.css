@@ -30,13 +30,12 @@ body{
     radial-gradient(1000px 600px at 95% 5%, rgba(227,93,91,.14), transparent 55%),
     var(--bg);
   overflow: hidden; /* 1画面完結 */
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }
 
 .app{
-  height: 100%;
+  min-height: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
   padding: var(--padT) var(--padR) var(--padB) var(--padL);
   display: flex;
   flex-direction: column;
@@ -58,7 +57,10 @@ body{
 
 
 .select{
-  height: 44px;
+  height: 48px;
+  user-select: auto;
+  -webkit-user-select: auto;
+  -webkit-touch-callout: default;
   border-radius: 14px;
   border: 1px solid rgba(148,163,184,.18);
   background: rgba(255,255,255,.06);
@@ -76,6 +78,9 @@ body{
 
 .selectHp{
   width: 96px;
+  text-align: center;
+  font-weight: 650;
+  background: rgba(255,255,255,.08);
 }
 
 .select:focus{
@@ -83,11 +88,6 @@ body{
   box-shadow: 0 0 0 3px rgba(45,190,108,.18);
 }
 
-.selectHp{
-  text-align: center;
-  font-weight: 650;
-  background: rgba(255,255,255,.08);
-}
 
 .typeIcons{
   display: flex;
@@ -111,9 +111,26 @@ body{
   flex: 0 0 auto;
 }
 
+.typeBadge{
+  height: 28px;
+  min-width: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: capitalize;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(148,163,184,.22);
+}
+
 /* Visual */
 .visual{
   flex: 1;
+  min-height: 0;
   background: var(--panel);
   border: 1px solid rgba(148,163,184,.18);
   border-radius: var(--radius);
@@ -144,6 +161,118 @@ body{
   border: 1px solid rgba(148,163,184,.18);
 }
 
+
+#pokemonImage.koPrelude{
+  animation: koPreludeBlink 1820ms linear forwards;
+}
+
+#pokemonImage.koGone{
+  opacity: 0;
+  transform: scale(.72);
+  filter: blur(2px) brightness(1.4);
+  transition: opacity 520ms ease-out, transform 520ms ease-out, filter 520ms ease-out;
+}
+
+
+#pokemonImage.waveCast{
+  animation: waveCast 200ms ease-in-out 5;
+}
+
+#pokemonImage.waveCastStrong{
+  animation: waveCastStrong 220ms ease-in-out 5;
+}
+
+#pokemonImage.desperateShake{
+  animation: desperateShake 700ms ease-in-out;
+}
+
+.specialWave{
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid rgba(178,236,255,.78);
+  transform: translate(-50%, -50%) scale(.2);
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 16px rgba(156,221,255,.6);
+}
+
+.specialWave.emit{
+  animation: waveBurst 420ms cubic-bezier(.12,.79,.19,1) 5;
+}
+
+.specialWave.emit::after{
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px solid rgba(183,236,255,.55);
+  animation: waveEcho 420ms ease-out 5;
+}
+
+.specialWave.strong{
+  border-color: rgba(220,160,255,.86);
+  box-shadow: 0 0 24px rgba(209,124,255,.7);
+}
+
+.specialWave.strong.emit{
+  animation: waveBurstStrong 480ms cubic-bezier(.1,.83,.2,1) 5;
+}
+
+.specialWave.strong.emit::after{
+  border-color: rgba(226,174,255,.72);
+  animation: waveEchoStrong 480ms ease-out 5;
+}
+
+.specialBubble{
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%) translateY(8px) scale(.95);
+  max-width: min(90%, 320px);
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(8,14,24,.88);
+  border: 1px solid rgba(255,255,255,.26);
+  color: #fff3d6;
+  font-weight: 900;
+  font-size: clamp(16px, 2.2vh, 22px);
+  line-height: 1.2;
+  white-space: pre-line;
+  text-align: center;
+  text-shadow: 0 3px 10px rgba(0,0,0,.6);
+  box-shadow: 0 14px 28px rgba(0,0,0,.35);
+  opacity: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.specialBubble::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%) rotate(45deg);
+  background: rgba(8,14,24,.88);
+  border-right: 1px solid rgba(255,255,255,.26);
+  border-bottom: 1px solid rgba(255,255,255,.26);
+}
+
+.specialBubble.show{
+  opacity: 1;
+  animation: bubblePop 520ms cubic-bezier(.14,.92,.24,1) forwards, bubbleFloat 1400ms ease-in-out 520ms infinite alternate;
+}
+
+.specialBubble.strong{
+  border-color: rgba(236,192,255,.78);
+  color: #ffe8ff;
+  box-shadow: 0 16px 34px rgba(96,36,128,.42);
+}
+
 /* Flash overlay (控えめ) */
 .flashOverlay{
   position: absolute;
@@ -170,6 +299,10 @@ body{
   visibility: visible;
 }
 
+.koOverlay.impact{
+  animation: screenPulse 880ms cubic-bezier(.14,.72,.21,1);
+}
+
 /* 背景をほんの少しだけ暗くして“イベント”感を出す（眩しすぎない） */
 .koOverlay::before{
   content: "";
@@ -180,26 +313,59 @@ body{
 
 .explosion{
   position: absolute;
-  inset: -10%;
+  inset: -20%;
   opacity: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 30% 35%, rgba(255,255,255,.92), rgba(255,255,255,0) 38%),
-    radial-gradient(circle at 60% 45%, rgba(255,200,0,.85), rgba(255,200,0,0) 42%),
-    radial-gradient(circle at 45% 60%, rgba(255,70,0,.70), rgba(255,70,0,0) 52%);
-  filter: blur(0.5px);
-  transform: scale(.55);
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.9), rgba(255,255,255,0) 30%),
+    radial-gradient(circle at 38% 40%, rgba(255,226,152,.72), rgba(255,226,152,0) 38%),
+    radial-gradient(circle at 60% 54%, rgba(255,156,82,.56), rgba(255,156,82,0) 48%),
+    conic-gradient(from 0deg, rgba(255,255,255,.32), rgba(255,221,126,.14), rgba(255,140,96,.22), rgba(255,255,255,.32));
+  filter: blur(0.2px) saturate(1.08);
+  transform: scale(.38);
+}
+
+.explosion::before,
+.explosion::after{
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.78);
+  opacity: 0;
 }
 
 .explosion.boom{
-  animation: koBoom 700ms ease-out forwards;
+  animation: koBoom 1900ms cubic-bezier(.18,.72,.22,1) forwards;
+}
+
+.explosion.boom::before{
+  animation: shockwave 1200ms ease-out forwards;
+}
+
+.explosion.boom::after{
+  animation: shockwave 1460ms ease-out 140ms forwards;
 }
 
 @keyframes koBoom{
-  0%{ opacity: 0; transform: scale(.35); }
-  12%{ opacity: .95; transform: scale(.75); }
-  55%{ opacity: .85; transform: scale(1.05); }
-  100%{ opacity: 0; transform: scale(1.35); }
+  0%{ opacity: 0; transform: scale(.3) rotate(-5deg); }
+  22%{ opacity: .9; transform: scale(.78) rotate(4deg); }
+  44%{ opacity: .82; transform: scale(1.16) rotate(-3deg); }
+  68%{ opacity: .58; transform: scale(1.5) rotate(1deg); }
+  84%{ opacity: .34; transform: scale(1.76) rotate(0deg); }
+  100%{ opacity: 0; transform: scale(1.96) rotate(0deg); }
+}
+
+@keyframes shockwave{
+  0%{ opacity: .9; transform: scale(.2); }
+  100%{ opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes screenPulse{
+  0%{ transform: scale(1); }
+  18%{ transform: scale(1.02); }
+  36%{ transform: scale(.995); }
+  100%{ transform: scale(1); }
 }
 
 .victory{
@@ -208,19 +374,103 @@ body{
   display: grid;
   place-items: center;
   font-weight: 900;
-  font-size: clamp(30px, 4.4vh, 44px);
-  letter-spacing: .06em;
-  text-shadow: 0 12px 34px rgba(0,0,0,.60);
+  font-size: clamp(36px, 5.2vh, 56px);
+  letter-spacing: .08em;
+  color: #fff8b8;
+  text-shadow: 0 16px 40px rgba(0,0,0,.72), 0 0 20px rgba(255,205,66,.45);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(2px);
-  transition: opacity 180ms ease-out, transform 180ms ease-out;
+  transform: translateY(10px) scale(.92);
 }
 
 .victory.show{
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  animation: victoryPop 700ms cubic-bezier(.16,.95,.25,1) forwards;
+}
+
+@keyframes victoryPop{
+  0%{ transform: translateY(16px) scale(.78); opacity: 0; }
+  40%{ transform: translateY(-8px) scale(1.1); opacity: 1; }
+  70%{ transform: translateY(2px) scale(.98); opacity: 1; }
+  100%{ transform: translateY(0) scale(1); opacity: 1; }
+}
+
+
+@keyframes koPreludeBlink{
+  0%, 14%{ opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  18%, 28%{ opacity: .36; transform: translateX(0) rotate(0deg) scale(1); }
+  32%, 42%{ opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  46%, 55%{ opacity: .24; transform: translateX(-1px) rotate(-1deg) scale(.997); }
+  58%, 66%{ opacity: 1; transform: translateX(1px) rotate(1deg) scale(1); }
+  69%, 75%{ opacity: .15; transform: translateX(-2px) rotate(-2deg) scale(.992); }
+  78%, 83%{ opacity: .95; transform: translateX(2px) rotate(2deg) scale(.995); }
+  85%, 89%{ opacity: .1; transform: translateX(-3px) rotate(-3deg) scale(.985); }
+  91%, 94%{ opacity: .85; transform: translateX(3px) rotate(3deg) scale(.975); }
+  96%, 98%{ opacity: .04; transform: translateX(-4px) rotate(-4deg) scale(.96); }
+  100%{ opacity: 0; transform: translateX(0) rotate(0deg) scale(.9); }
+}
+
+@keyframes bubblePop{
+  0%{ opacity: 0; transform: translateX(-50%) translateY(10px) scale(.86) rotate(-2deg); filter: brightness(.85); }
+  48%{ opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1.08) rotate(1.5deg); filter: brightness(1.08); }
+  72%{ opacity: 1; transform: translateX(-50%) translateY(2px) scale(.98) rotate(-1deg); }
+  100%{ opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(0deg); filter: brightness(1); }
+}
+
+@keyframes bubbleFloat{
+  0%{ transform: translateX(-50%) translateY(0) scale(1); }
+  50%{ transform: translateX(-50%) translateY(-3px) scale(1.01); }
+  100%{ transform: translateX(-50%) translateY(1px) scale(.995); }
+}
+
+@keyframes waveBurst{
+  0%{ opacity: .95; transform: translate(-50%, -50%) scale(.25); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) scale(10.2); }
+}
+
+@keyframes waveEcho{
+  0%{ opacity: .9; transform: scale(.45); }
+  100%{ opacity: 0; transform: scale(1.8); }
+}
+
+@keyframes waveBurstStrong{
+  0%{ opacity: 1; transform: translate(-50%, -50%) scale(.2); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) scale(14.5); }
+}
+
+@keyframes waveEchoStrong{
+  0%{ opacity: .95; transform: scale(.35); }
+  100%{ opacity: 0; transform: scale(2.2); }
+}
+
+
+@keyframes waveCast{
+  0%{ transform: translateX(0); }
+  25%{ transform: translateX(-6px); }
+  50%{ transform: translateX(6px); }
+  75%{ transform: translateX(-4px); }
+  100%{ transform: translateX(0); }
+}
+
+@keyframes waveCastStrong{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-10px); }
+  40%{ transform: translateX(10px); }
+  60%{ transform: translateX(-8px); }
+  80%{ transform: translateX(8px); }
+  100%{ transform: translateX(0); }
+}
+
+@keyframes desperateShake{
+  0%{ transform: translateX(0) rotate(0deg); }
+  12%{ transform: translateX(-8px) rotate(-1.5deg); }
+  24%{ transform: translateX(8px) rotate(1.5deg); }
+  36%{ transform: translateX(-7px) rotate(-1.2deg); }
+  48%{ transform: translateX(7px) rotate(1.2deg); }
+  60%{ transform: translateX(-5px) rotate(-.8deg); }
+  72%{ transform: translateX(5px) rotate(.8deg); }
+  100%{ transform: translateX(0) rotate(0deg); }
 }
 
 /* HP bar */
@@ -231,7 +481,7 @@ body{
 }
 
 .hpBar{
-  width: calc(100% - 0px);
+  width: 100%;
   height: 16px;
   border-radius: 999px;
   background: rgba(31,41,55,.9);
@@ -249,7 +499,7 @@ body{
 
 /* Bottom */
 .bottom{
-  height: clamp(190px, 26vh, 250px);
+  min-height: clamp(188px, 24vh, 240px);
   background: var(--panel);
   border: 1px solid rgba(148,163,184,.18);
   border-radius: var(--radius);
@@ -355,6 +605,7 @@ body{
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: 120px;
   border: none;
   background: transparent;
   border-radius: 999px;
@@ -373,6 +624,53 @@ body{
   opacity: .45;
   filter: grayscale(.2);
   cursor: default;
+}
+
+.tapCombo{
+  position: absolute;
+  top: -2%;
+  right: 2%;
+  z-index: 2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.82);
+  border: 1px solid rgba(255,255,255,.2);
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #ffe58f;
+  text-shadow: 0 4px 14px rgba(0,0,0,.5);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(-6px) scale(.9);
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+
+.comboNumber{
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: .01em;
+}
+
+.comboUnit{
+  font-size: 14px;
+  line-height: 1;
+}
+
+.tapCombo.show{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.tapCombo.burst{
+  animation: comboBurst 260ms ease-out;
+}
+
+@keyframes comboBurst{
+  0%{ transform: translateY(0) scale(.9); }
+  50%{ transform: translateY(-2px) scale(1.08); }
+  100%{ transform: translateY(0) scale(1); }
 }
 
 .zapSurface{
@@ -411,9 +709,6 @@ body{
   animation: hitFlash 120ms ease-out;
 }
 
-.explosion.boom{
-  animation: boom 550ms ease-out;
-}
 
 .hpPop{
   animation: hpPop 120ms ease-out;
@@ -432,14 +727,116 @@ body{
   100%{ opacity: 0; }
 }
 
-@keyframes boom{
-  0%{ opacity: 0; transform: scale(.6); }
-  20%{ opacity: 1; transform: scale(1.0); }
-  100%{ opacity: 0; transform: scale(1.25); }
-}
 
 @keyframes hpPop{
   0%{ transform: scale(1); }
   50%{ transform: scale(.98); }
   100%{ transform: scale(1); }
+}
+
+/* iPhone幅での視認性とタップしやすさを改善 */
+@media (max-width: 430px) {
+  .app{
+    gap: 10px;
+  }
+
+  .header{
+    height: auto;
+    grid-template-columns: minmax(0, 1fr) 92px;
+    grid-template-areas:
+      "pokemon hp"
+      "types types";
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .selectPokemon{ grid-area: pokemon; }
+  .selectHp{
+    grid-area: hp;
+    width: 92px;
+  }
+
+  .typeIcons{
+    grid-area: types;
+    justify-content: flex-start;
+    min-height: 28px;
+  }
+
+  .typeIcons img{
+    width: 26px;
+    height: 26px;
+  }
+
+  .typeBadge{
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .tapCombo{
+    top: 0;
+    right: 0;
+    padding: 5px 9px;
+  }
+
+  .comboNumber{
+    font-size: 24px;
+  }
+
+  .comboUnit{
+    font-size: 12px;
+  }
+
+  .bottom{
+    min-height: clamp(180px, 27vh, 220px);
+    grid-template-columns: minmax(0, 1fr) 45%;
+    padding: 12px;
+  }
+
+  .stat{
+    padding: 10px;
+  }
+
+  .hpValue{
+    font-size: clamp(38px, 5.4vh, 52px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual.hit,
+  .flashOverlay.flash,
+  #hpNow.hpPop,
+  .tapCombo.burst,
+  .zapButton:active .zapSurface,
+  .zapButton:active .zapIcon{
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .koOverlay.impact{
+    animation-duration: 620ms !important;
+  }
+
+  .explosion.boom{
+    animation-duration: 1320ms !important;
+  }
+
+  #pokemonImage.koPrelude{
+    animation-duration: 1200ms !important;
+  }
+
+  .specialWave.emit,
+  .specialWave.strong.emit{
+    animation-duration: 900ms !important;
+  }
+
+  .specialBubble.show{
+    animation: none !important;
+  }
+
+  #pokemonImage.waveCast,
+  #pokemonImage.waveCastStrong,
+  #pokemonImage.desperateShake{
+    animation: none !important;
+  }
 }
