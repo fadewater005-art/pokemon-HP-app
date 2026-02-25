@@ -28,7 +28,8 @@
     koShown: false,
     currentAbility: null,
     abilityOverrideText: "",
-    shownHpLines: new Set()
+    shownHpLines: new Set(),
+    shownBanThresholds: new Set()
   };
 
   // HP候補（固定）
@@ -40,6 +41,7 @@
   let imageRequestId = 0;
   let comboClearTimer = 0;
   let lowHpAlertTimer = 0;
+  let specialEffectTimers = [];
   const comboWindowMs = 3200;
   const maxComboDisplay = 30;
   let comboCount = 0;
@@ -149,6 +151,18 @@
     pokemonImage.classList.remove("koPrelude", "koGone");
   }
 
+
+  function clearSpecialEffectTimers() {
+    for (const t of specialEffectTimers) clearTimeout(t);
+    specialEffectTimers = [];
+  }
+
+  function stopSpecialEffects() {
+    clearSpecialEffectTimers();
+    if (specialWave) specialWave.classList.remove("emit", "strong");
+    pokemonImage.classList.remove("waveCast", "waveCastStrong", "desperateShake");
+  }
+
   function hideSpecialBubble() {
     if (!specialBubble) return;
     specialBubble.classList.remove("show", "strong");
@@ -189,8 +203,8 @@
     { threshold: 90, text: "ひるねでも するか！" },
     { threshold: 80, text: "ぜんぜん いたくないぜ！" },
     { threshold: 60, text: "ひるね しすぎた！" },
-    { threshold: 40, text: "いたすぎ けんしん３にん きたぞ！" },
-    { threshold: 30, text: "いたすぎ けんしん８００にん！" },
+    { threshold: 40, text: "いたすぎけんしん\n３にんきたぞ！" },
+    { threshold: 30, text: "いたすぎけんしん\n８００にん！" },
     { threshold: 10, text: "たたたたたすけて～！" }
   ];
 
@@ -204,6 +218,9 @@
       if (prevRatio >= line.threshold && nextRatio < line.threshold && !state.shownHpLines.has(line.threshold)) {
         state.shownHpLines.add(line.threshold);
         showSpecialBubble(line.text);
+        if (line.threshold === 10) {
+          restartClass(pokemonImage, "desperateShake");
+        }
         break;
       }
     }
@@ -214,15 +231,19 @@
     if (state.selectedPokemonId !== "totogengar" || state.initialHP <= 0 || state.currentHP <= 0) return;
 
     const hpRatio = state.currentHP / state.initialHP;
-    if (hpRatio < 0.2) {
+    if (hpRatio < 0.2 && !state.shownBanThresholds.has(20)) {
+      state.shownBanThresholds.add(20);
       triggerSpecialWave(true);
+      restartClass(pokemonImage, "waveCastStrong");
       showSpecialBubble(TOTOGENGAR_BAN_TEXT, true);
       state.abilityOverrideText = TOTOGENGAR_BAN_TEXT;
       renderAbilityFromState();
       return;
     }
-    if (hpRatio < 0.5) {
+    if (hpRatio < 0.5 && !state.shownBanThresholds.has(50)) {
+      state.shownBanThresholds.add(50);
       triggerSpecialWave(false);
+      restartClass(pokemonImage, "waveCast");
       showSpecialBubble(TOTOGENGAR_BAN_TEXT);
       state.abilityOverrideText = TOTOGENGAR_BAN_TEXT;
       renderAbilityFromState();
@@ -331,6 +352,8 @@
     state.initialHP = initial;
     state.currentHP = initial;
     state.shownHpLines.clear();
+    state.shownBanThresholds.clear();
+    stopSpecialEffects();
     hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
@@ -403,6 +426,7 @@
     koTimers.push(t);
     updateButtonState();
     stopLowHpAlert();
+    stopSpecialEffects();
   }
 
   // 子供向けの軽い衝撃音（Web Audio生成）
@@ -532,6 +556,7 @@
   }
 
   function resetOverrideOnNewComboStart() {
+    stopSpecialEffects();
     hideSpecialBubble();
     if (state.abilityOverrideText) {
       state.abilityOverrideText = "";
@@ -545,6 +570,8 @@
       state.currentAbility = null;
       state.abilityOverrideText = "";
       state.shownHpLines.clear();
+      state.shownBanThresholds.clear();
+      stopSpecialEffects();
       hideSpecialBubble();
       renderTypes([]);
       renderAbilityFromState();
@@ -558,6 +585,8 @@
     state.currentAbility = pokemon.ability;
     state.abilityOverrideText = "";
     state.shownHpLines.clear();
+    state.shownBanThresholds.clear();
+    stopSpecialEffects();
     hideSpecialBubble();
     renderTypes(pokemon.types);
     renderAbilityFromState();

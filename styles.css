@@ -173,6 +173,19 @@ body{
   transition: opacity 520ms ease-out, transform 520ms ease-out, filter 520ms ease-out;
 }
 
+
+#pokemonImage.waveCast{
+  animation: waveCast 200ms ease-in-out 5;
+}
+
+#pokemonImage.waveCastStrong{
+  animation: waveCastStrong 220ms ease-in-out 5;
+}
+
+#pokemonImage.desperateShake{
+  animation: desperateShake 700ms ease-in-out;
+}
+
 .specialWave{
   position: absolute;
   inset: 50% auto auto 50%;
@@ -187,7 +200,7 @@ body{
 }
 
 .specialWave.emit{
-  animation: waveBurst 980ms cubic-bezier(.12,.79,.19,1) forwards;
+  animation: waveBurst 420ms cubic-bezier(.12,.79,.19,1) 5;
 }
 
 .specialWave.emit::after{
@@ -196,7 +209,7 @@ body{
   inset: -12px;
   border-radius: 50%;
   border: 2px solid rgba(183,236,255,.55);
-  animation: waveEcho 980ms ease-out forwards;
+  animation: waveEcho 420ms ease-out 5;
 }
 
 .specialWave.strong{
@@ -205,12 +218,12 @@ body{
 }
 
 .specialWave.strong.emit{
-  animation: waveBurstStrong 1180ms cubic-bezier(.1,.83,.2,1) forwards;
+  animation: waveBurstStrong 480ms cubic-bezier(.1,.83,.2,1) 5;
 }
 
 .specialWave.strong.emit::after{
   border-color: rgba(226,174,255,.72);
-  animation: waveEchoStrong 1180ms ease-out forwards;
+  animation: waveEchoStrong 480ms ease-out 5;
 }
 
 .specialBubble{
@@ -429,6 +442,35 @@ body{
 @keyframes waveEchoStrong{
   0%{ opacity: .95; transform: scale(.35); }
   100%{ opacity: 0; transform: scale(2.2); }
+}
+
+
+@keyframes waveCast{
+  0%{ transform: translateX(0); }
+  25%{ transform: translateX(-6px); }
+  50%{ transform: translateX(6px); }
+  75%{ transform: translateX(-4px); }
+  100%{ transform: translateX(0); }
+}
+
+@keyframes waveCastStrong{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-10px); }
+  40%{ transform: translateX(10px); }
+  60%{ transform: translateX(-8px); }
+  80%{ transform: translateX(8px); }
+  100%{ transform: translateX(0); }
+}
+
+@keyframes desperateShake{
+  0%{ transform: translateX(0) rotate(0deg); }
+  12%{ transform: translateX(-8px) rotate(-1.5deg); }
+  24%{ transform: translateX(8px) rotate(1.5deg); }
+  36%{ transform: translateX(-7px) rotate(-1.2deg); }
+  48%{ transform: translateX(7px) rotate(1.2deg); }
+  60%{ transform: translateX(-5px) rotate(-.8deg); }
+  72%{ transform: translateX(5px) rotate(.8deg); }
+  100%{ transform: translateX(0) rotate(0deg); }
 }
 
 /* HP bar */
@@ -789,6 +831,12 @@ body{
   }
 
   .specialBubble.show{
+    animation: none !important;
+  }
+
+  #pokemonImage.waveCast,
+  #pokemonImage.waveCastStrong,
+  #pokemonImage.desperateShake{
     animation: none !important;
   }
 }
